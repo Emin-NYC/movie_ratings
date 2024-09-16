@@ -15,7 +15,7 @@ library(knitr)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Intro
+# Intro
 The purpose of this assignment was to manage and prepare data for downstream analysis. 
 This was achieved by taking a move ratings data set and storing it in a MySQL database,
 then retrieving it into R to check for any missing data. 
@@ -23,7 +23,7 @@ then retrieving it into R to check for any missing data.
 ## Connect to SQL database and retrieve table into R dataframe
 First, we connect to the SQL database and retrieve the table into an R dataframe. 
 
-# Attempt to connect to SQL database
+## Attempt to connect to SQL database
 ```{r}
 connection <- dbConnect(
   RMySQL::MySQL(),
@@ -49,7 +49,7 @@ missing_data_check <- any(is.na(movie_ratings_df))
 missing_data_summary <- colSums(is.na(movie_ratings_df))
 ```
 
-# Print summary of missing data
+## Print summary of missing data
 ```{r}
 missing_data_check
 missing_data_summary
@@ -59,8 +59,44 @@ Missing data check should result in FALSE, meaning there are no missing values f
 
 Furthermore, there should be zero missing values in any column. 
 
-## Display table
+# Missing values can be handled with simple removal or imputation.
 
+## Simple removal of rows from the dataframe that contain missing values
+```{r}
+  movie_ratings_clean <- na.omit(movie_ratings_df)
+```
+
+## Imputation by mean, median, mode, or constant value
+```{r}
+movie_ratings_clean <- movie_ratings_df
+```
+
+### Mean imputation
+```{r}
+movie_ratings_clean$rating[is.na(movie_ratings_clean$rating)] <-
+mean(movie_ratings_clean$rating, na.rm = TRUE)
+```
+
+### Median imputation
+```{r}
+movie_ratings_clean$rating[is.na(movie_ratings_clean$rating)] <-       median(movie_ratings_clean$rating, na.rm = TRUE)
+```
+
+### Mode imputation
+```{r}
+mode_rating <- names(sort(table(movie_ratings_clean$rating), decreasing = TRUE))[1]
+
+movie_ratings_clean$rating[is.na(movie_ratings_clean$rating)] <- as.numeric(mode_rating)
+```
+  
+  
+### Constant value imputation
+```{r}
+movie_ratings_clean$person[is.na(movie_ratings_clean$person)] <- "Unknown"
+```
+
+
+### Display table
 ```{r}
 knitr::kable(movie_ratings_df)
 ```
